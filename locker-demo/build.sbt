@@ -1,4 +1,4 @@
-name := """EP-DSID"""
+name := """Locker-demo"""
 organization := "com.usp"
 
 version := "1.0-SNAPSHOT"
