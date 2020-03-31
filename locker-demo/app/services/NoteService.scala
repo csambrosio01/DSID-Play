@@ -51,4 +51,19 @@ class NoteService @Inject()(
         }
       }
   }
+
+  def deleteNote(noteId: Long, user: User): Future[String] = {
+    noteRepository.findNoteById(noteId)
+      .map(_.getOrElse(throw NotFoundException(s"Could not found a note with id $noteId")))
+      .flatMap { note =>
+        if (note.userId == user.userId.get) {
+          noteRepository.delete(noteId)
+        } else {
+          throw UnauthorizedException(s"Note with is $noteId does not belongs to user ${user.userId.get}")
+        }
+      }
+      .map { numberOfRowsAffected =>
+        s"You've deleted $numberOfRowsAffected rows"
+      }
+  }
 }
