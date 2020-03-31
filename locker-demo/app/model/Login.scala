@@ -8,5 +8,5 @@ case class Login(
                 )
 
 object Login {
-  val loginReads: Reads[Login] = Json.reads[Login]
+  implicit val loginReads: Reads[Login] = Json.reads[Login]
 }
