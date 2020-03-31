@@ -17,4 +17,6 @@ trait NoteRepository {
   def findNoteById(noteId: Long): Future[Option[Note]]
 
   def update(noteId: Long, note: AddNote): Future[Note]
+
+  def delete(noteId: Long): Future[Int]
 }

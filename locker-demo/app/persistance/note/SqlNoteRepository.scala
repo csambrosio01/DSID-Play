@@ -77,4 +77,10 @@ class SqlNoteRepository @Inject()(
         }
   }
 
+  override def delete(noteId: Long): Future[Int] = {
+    val query = notes.filter(_.noteId === noteId)
+
+    db.run(query.delete)
+  }
+
 }
