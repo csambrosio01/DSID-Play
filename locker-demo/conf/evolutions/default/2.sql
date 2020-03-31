@@ -14,8 +14,9 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE notes (
     note_id                                     BIGINT NOT NULL DEFAULT NEXTVAL('note_id_seq'),
     user_id                                     BIGINT NOT NULL,
+    title                                       VARCHAR(20) NOT NULL,
+    description                                 VARCHAR(60),
     content                                     VARCHAR NOT NULL,
-    description                                 VARCHAR NOT NULL,
     created_at                                  TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at                                  TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     PRIMARY KEY (note_id)

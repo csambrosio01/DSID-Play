@@ -16,15 +16,17 @@ private class NoteTable(tag: Tag) extends Table[Note](tag, "notes") {
 
   def userId = column[Long]("user_id")
 
+  def title = column[String]("title")
+
   def content = column[String]("content")
 
-  def description = column[String]("description")
+  def description = column[Option[String]]("description")
 
   def createdAt = column[Timestamp]("created_at")
 
   def updatedAt = column[Timestamp]("updated_at")
 
-  def * = (noteId, userId, content, description, createdAt, updatedAt) <> ((Note.apply _).tupled, Note.unapply)
+  def * = (noteId, userId, title, content, description, createdAt, updatedAt) <> ((Note.apply _).tupled, Note.unapply)
 }
 
 class SqlNoteRepository @Inject()(
@@ -41,7 +43,7 @@ class SqlNoteRepository @Inject()(
   private val notes = TableQuery[NoteTable]
 
   override def create(note: AddNote): Future[Note] = {
-    val insert = notes.map(n => (n.userId, n.content, n.description)).returning(notes) += (note.userId.getOrElse(0), note.content, note.description)
+    val insert = notes.map(n => (n.userId, n.title, n.content, n.description)).returning(notes) += (note.userId.getOrElse(0), note.title, note.content, note.description)
 
     db.run(insert)
   }

@@ -7,16 +7,18 @@ import play.api.libs.json._
 case class Note(
                  noteId: Option[Long],
                  userId: Long,
+                 title: String,
                  content: String,
-                 description: String,
+                 description: Option[String],
                  createdAt: Timestamp,
                  updatedAt: Timestamp
                )
 
 case class AddNote(
                     userId: Option[Long],
+                    title: String,
                     content: String,
-                    description: String
+                    description: Option[String]
                   )
 
 object Note {
