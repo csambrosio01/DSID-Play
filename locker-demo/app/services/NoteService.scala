@@ -31,4 +31,11 @@ class NoteService @Inject()(
         }
       }
   }
+
+  def getNoteById(noteId: Long, user: User): Future[Option[Note]] = {
+    noteRepository.findNoteById(noteId)
+      .map { note =>
+        note.fold(note) { n => if (n.userId == user.userId.get) note else None }
+      }
+  }
 }
