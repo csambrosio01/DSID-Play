@@ -27,7 +27,7 @@ class NoteController @Inject() (
       .userInfo
       .fold(
         Future.successful(
-          Unauthorized("You must be logged in to create a note")
+          Unauthorized("You must be logged in to do this action")
         )
       ) { user =>
         request
@@ -48,7 +48,7 @@ class NoteController @Inject() (
       .userInfo
       .fold(
         Future.successful(
-          Unauthorized("You must be logged in to create a note")
+          Unauthorized("You must be logged in to do this action")
         )
       ) { user =>
         val futureNotes = noteService.getUserNotes(user)
@@ -69,7 +69,7 @@ class NoteController @Inject() (
       .userInfo
       .fold(
         Future.successful(
-          Unauthorized("You must be logged in to create a note")
+          Unauthorized("You must be logged in to do this action")
         )
       ) { user =>
         request
@@ -97,7 +97,7 @@ class NoteController @Inject() (
       .userInfo
       .fold(
         Future.successful(
-          Unauthorized("You must be logged in to create a note")
+          Unauthorized("You must be logged in to do this action")
         )
       ) { user =>
         val futureNote = noteService.getNoteById(noteId, user)
@@ -118,7 +118,7 @@ class NoteController @Inject() (
       .userInfo
       .fold(
         Future.successful(
-          Unauthorized("You must be logged in to create a note")
+          Unauthorized("You must be logged in to do this action")
         )
       ) { user =>
         request
