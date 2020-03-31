@@ -1,41 +1,25 @@
-import javax.inject.{ Inject, Singleton }
-
+import javax.inject.{Inject, Singleton}
+import model.User
 import play.api.http.SecretConfiguration
 import play.api.i18n.MessagesApi
-import play.api.libs.json.{ Format, Json }
+import play.api.libs.json.OFormat
 import play.api.mvc._
-import services.encryption.{ EncryptedCookieBaker, EncryptionService }
+import services.encryption.{EncryptedCookieBaker, EncryptionService}
 import services.session.SessionService
 
 import scala.concurrent.duration._
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
  * Methods and objects common to all controllers
  */
 package object controllers {
 
-  import play.api.data.Form
-  import play.api.data.Forms._
-
   val SESSION_ID = "sessionId"
 
   val FLASH_ERROR = "error"
 
   val USER_INFO_COOKIE_NAME = "userInfo"
-
-  case class UserInfo(username: String)
-
-  object UserInfo {
-    // Use a JSON format to automatically convert between case class and JsObject
-    implicit val format: Format[UserInfo] = Json.format[UserInfo]
-  }
-
-  val form = Form(
-    mapping(
-      "username" -> text
-    )(UserInfo.apply)(UserInfo.unapply)
-  )
 
   def discardingSession(result: Result): Result = {
     result.withNewSession.discardingCookies(DiscardingCookie(USER_INFO_COOKIE_NAME))
@@ -74,7 +58,7 @@ package object controllers {
             // Let's redirect them back to the home page without any session cookie stuff.
             Future.successful {
               discardingSession {
-                Redirect(routes.HomeController.index())
+                Ok
               }.flashing(FLASH_ERROR -> "Your session has expired!")
             }
         }
@@ -87,12 +71,12 @@ package object controllers {
   }
 
   trait UserRequestHeader extends PreferredMessagesProvider with MessagesRequestHeader {
-    def userInfo: Option[UserInfo]
+    def userInfo: Option[User]
   }
 
   class UserRequest[A](
                         request: Request[A],
-                        val userInfo: Option[UserInfo],
+                        val userInfo: Option[User],
                         val messagesApi: MessagesApi
                       ) extends WrappedRequest[A](request) with UserRequestHeader
 
@@ -105,8 +89,10 @@ package object controllers {
                                                secretConfiguration: SecretConfiguration
                                              ) {
 
-    def createCookieBaker(secretKey: Array[Byte]): EncryptedCookieBaker[UserInfo] = {
-      new EncryptedCookieBaker[UserInfo](secretKey, encryptionService, secretConfiguration) {
+    implicit val userFormat: OFormat[User] = User.userFormat
+
+    def createCookieBaker(secretKey: Array[Byte]): EncryptedCookieBaker[User] = {
+      new EncryptedCookieBaker[User](secretKey, encryptionService, secretConfiguration) {
         // This can also be set to the session expiration, but lets keep it around for example
         override val expirationDate: FiniteDuration = 365.days
         override val COOKIE_NAME: String = USER_INFO_COOKIE_NAME
@@ -121,7 +107,7 @@ package object controllers {
                                      factory: UserInfoCookieBakerFactory
                                    )(implicit ec: ExecutionContext) {
 
-    def createSession(userInfo: UserInfo): Future[(String, Cookie)] = {
+    def createSession(userInfo: User): Future[(String, Cookie)] = {
       // create a user info cookie with this specific secret key
       val secretKey = userInfoService.newSecretKey
       val cookieBaker = factory.createCookieBaker(secretKey)
