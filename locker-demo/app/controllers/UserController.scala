@@ -43,17 +43,13 @@ class UserController @Inject() (
       .getOrElse(Future.successful(BadRequest("Bad json")))
   }
 
-
-  def logout = Action { implicit request: Request[AnyContent] =>
-    // When we delete the session id, removing the session id is enough to render the
-    // user info cookie unusable.
+  def logout: Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
     request.session.get(SESSION_ID).foreach { sessionId =>
       sessionService.delete(sessionId)
     }
 
     discardingSession {
-      Redirect(routes.HomeController.index())
+      Ok("Logged out")
     }
   }
-
 }
