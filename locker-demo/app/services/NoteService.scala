@@ -1,5 +1,6 @@
 package services
 
+import exception.{NotFoundException, UnauthorizedException}
 import javax.inject.Inject
 import model.{AddNote, Note, User}
 import persistance.note.NoteRepository
@@ -36,6 +37,18 @@ class NoteService @Inject()(
     noteRepository.findNoteById(noteId)
       .map { note =>
         note.fold(note) { n => if (n.userId == user.userId.get) note else None }
+      }
+  }
+
+  def updateNote(addNote: AddNote, noteId: Long, user: User): Future[Note] = {
+    noteRepository.findNoteById(noteId)
+      .map(_.getOrElse(throw NotFoundException(s"Could not found a note with id $noteId")))
+      .flatMap { note =>
+        if (note.userId == user.userId.get) {
+          noteRepository.update(noteId, addNote)
+        } else {
+          throw UnauthorizedException(s"Note with is $noteId does not belongs to user ${user.userId.get}")
+        }
       }
   }
 }
