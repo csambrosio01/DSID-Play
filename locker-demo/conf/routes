@@ -13,3 +13,4 @@ POST        /logout                                     controllers.UserControll
 POST        /note                                       controllers.NoteController.createNote
 GET         /notes                                      controllers.NoteController.getUserNotes
 GET         /notes/title                                controllers.NoteController.getNotesByTitle
+GET         /notes/:noteId                              controllers.NoteController.getNoteById(noteId: Long)
