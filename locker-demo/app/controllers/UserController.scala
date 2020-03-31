@@ -17,7 +17,8 @@ class UserController @Inject() (
                                  sessionGenerator: SessionGenerator,
                                  cc: ControllerComponents,
                                  sessionService: SessionService,
-                                 userService: UserService
+                                 userService: UserService,
+                                 userAction: UserInfoAction
                                )
                                (
                                  implicit ec: ExecutionContext
@@ -84,5 +85,17 @@ class UserController @Inject() (
     discardingSession {
       Ok("Logged out")
     }
+  }
+
+  def getLoggedUser(): Action[AnyContent] = userAction.async { implicit request: UserRequest[AnyContent] =>
+    request
+      .userInfo
+      .fold(
+        Future.successful(
+          Unauthorized("You must be logged in to do this action")
+        )
+      ) { user =>
+        Future.successful(Ok(Json.toJson(user)))
+      }
   }
 }
