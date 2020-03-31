@@ -3,12 +3,12 @@ package services
 import exception.WrongCredentialsException
 import javax.inject.Inject
 import model.{Login, User}
-import persistance.user.SqlUserRepository
+import persistance.user.UserRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserService @Inject()(
-                             userRepository: SqlUserRepository
+                             userRepository: UserRepository
                            )
                            (
                              implicit ec: ExecutionContext
