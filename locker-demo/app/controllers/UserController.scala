@@ -1,8 +1,12 @@
 package controllers
 
+import exception.WrongCredentialsException
 import javax.inject.Inject
-import model.User
+import model.{Login, User}
 import model.User._
+import model.Login._
+import play.api.Logging
+import play.api.libs.json.Json
 import play.api.mvc._
 import services.UserService
 import services.session.SessionService
@@ -19,7 +23,8 @@ class UserController @Inject() (
                                (
                                  implicit ec: ExecutionContext
                                )
-  extends AbstractController(cc) {
+  extends AbstractController(cc)
+    with Logging {
 
   def createUser(): Action[AnyContent] = Action.async { implicit request =>
     request
@@ -39,6 +44,35 @@ class UserController @Inject() (
               .withSession(session)
               .withCookies(encryptedCookie)
         }
+      }
+      .getOrElse(Future.successful(BadRequest("Bad json")))
+  }
+
+  def login: Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+    request
+      .body
+      .asJson
+      .map(_.as[Login])
+      .map { login =>
+        val validation = for {
+          user <- userService.login(login)
+          (sessionId, encryptedCookie) <- sessionGenerator.createSession(user)
+        } yield (user, sessionId, encryptedCookie)
+
+        validation.map {
+          case (user, sessionId, encryptedCookie) =>
+            val session = request.session + (SESSION_ID -> sessionId)
+            Ok(Json.toJson(user))
+            .withSession(session)
+            .withCookies(encryptedCookie)
+
+          case _ => BadRequest("Could not login")
+        }
+          .recover {
+            case e: WrongCredentialsException =>
+              logger.warn(e.message)
+              BadRequest(Json.obj("error" -> e.getMessage))
+          }
       }
       .getOrElse(Future.successful(BadRequest("Bad json")))
   }
