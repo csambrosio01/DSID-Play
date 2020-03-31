@@ -15,3 +15,4 @@ GET         /notes                                      controllers.NoteControll
 GET         /notes/title                                controllers.NoteController.getNotesByTitle
 GET         /notes/:noteId                              controllers.NoteController.getNoteById(noteId: Long)
 PUT         /notes/update/:noteId                       controllers.NoteController.updateNote(noteId: Long)
+DELETE      /notes/:noteId                              controllers.NoteController.deleteNote(noteId: Long)

@@ -137,10 +137,33 @@ class NoteController @Inject() (
                   NotFound("Could not found a note with given id")
                 case e: UnauthorizedException =>
                   logger.warn(e.message)
-                  Unauthorized("You can't update a note that isn't yours")
+                  Unauthorized("You don't have permission to do this action")
               }
           }
           .getOrElse(Future.successful(BadRequest("Bad json")))
+      }
+  }
+
+  def deleteNote(noteId: Long): Action[AnyContent] = userAction.async { implicit request: UserRequest[AnyContent] =>
+    request
+      .userInfo
+      .fold(
+        Future.successful(
+          Unauthorized("You must be logged in to do this action")
+        )
+      ) { user =>
+        noteService.deleteNote(noteId, user)
+          .map { result =>
+            Ok(result)
+          }
+          .recover {
+            case e: NotFoundException =>
+              logger.warn(e.message)
+              NotFound("Could not found a note with given id")
+            case e: UnauthorizedException =>
+              logger.warn(e.message)
+              Unauthorized("You don't have permission to do this action")
+          }
       }
   }
 
