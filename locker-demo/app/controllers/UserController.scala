@@ -25,7 +25,7 @@ class UserController @Inject() (
     request
       .body
       .asJson
-      .map(_.as[User](userFormat))
+      .map(_.as[User])
       .map { user: User =>
         val validation = for {
           _ <- userService.createUser(user)
