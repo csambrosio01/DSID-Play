@@ -14,10 +14,10 @@ case class Note(
                )
 
 case class AddNote(
-                        userId: Option[Long],
-                        content: String,
-                        description: String
-                      )
+                    userId: Option[Long],
+                    content: String,
+                    description: String
+                  )
 
 object Note {
   def timestampToLong(t: Timestamp): Long = t.getTime
