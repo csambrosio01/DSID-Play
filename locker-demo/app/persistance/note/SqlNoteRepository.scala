@@ -68,4 +68,13 @@ class SqlNoteRepository @Inject()(
     db.run(query.result.headOption)
   }
 
+  override def update(noteId: Long, note: AddNote): Future[Note] = {
+    val query = notes.filter(_.noteId === noteId).map(n => (n.title, n.content, n.description))
+
+    db.run(query.update((note.title, note.content, note.description)))
+        .flatMap { _ =>
+          findNoteById(noteId).map(_.get)
+        }
+  }
+
 }

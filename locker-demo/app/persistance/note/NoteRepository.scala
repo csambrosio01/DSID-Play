@@ -15,4 +15,6 @@ trait NoteRepository {
   def findNotesByTitle(title: String): Future[Seq[Note]]
 
   def findNoteById(noteId: Long): Future[Option[Note]]
+
+  def update(noteId: Long, note: AddNote): Future[Note]
 }
