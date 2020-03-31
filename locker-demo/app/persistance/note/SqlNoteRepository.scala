@@ -3,12 +3,12 @@ package persistance.note
 import java.sql.Timestamp
 
 import javax.inject.Inject
-import model.Note
+import model.{Note, AddNote}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 import slick.jdbc.PostgresProfile.api._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 private class NoteTable(tag: Tag) extends Table[Note](tag, "notes") {
 
@@ -39,4 +39,11 @@ class SqlNoteRepository @Inject()(
   import profile.api._
 
   private val notes = TableQuery[NoteTable]
+
+  override def create(note: AddNote): Future[Note] = {
+    val insert = notes.map(n => (n.userId, n.content, n.description)).returning(notes) += (note.userId.getOrElse(0), note.content, note.description)
+
+    db.run(insert)
+  }
+
 }
