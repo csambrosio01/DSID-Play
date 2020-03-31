@@ -62,4 +62,10 @@ class SqlNoteRepository @Inject()(
     db.run(query.result)
   }
 
+  override def findNoteById(noteId: Long): Future[Option[Note]] = {
+    val query = notes.filter(_.noteId === noteId)
+
+    db.run(query.result.headOption)
+  }
+
 }

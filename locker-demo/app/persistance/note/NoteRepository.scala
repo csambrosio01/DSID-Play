@@ -13,4 +13,6 @@ trait NoteRepository {
   def findNotesByUserId(userId: Long): Future[Seq[Note]]
 
   def findNotesByTitle(title: String): Future[Seq[Note]]
+
+  def findNoteById(noteId: Long): Future[Option[Note]]
 }
