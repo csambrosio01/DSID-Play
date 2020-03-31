@@ -11,3 +11,4 @@ POST        /login                                      controllers.UserControll
 POST        /logout                                     controllers.UserController.logout
 
 POST        /note                                       controllers.NoteController.createNote
+GET         /notes                                      controllers.NoteController.getUserNotes
