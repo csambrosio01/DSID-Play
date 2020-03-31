@@ -9,3 +9,5 @@ POST        /users/create                               controllers.UserControll
 
 POST        /login                                      controllers.UserController.login
 POST        /logout                                     controllers.UserController.logout
+
+POST        /note                                       controllers.NoteController.createNote
