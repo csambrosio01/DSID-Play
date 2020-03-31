@@ -1,13 +1,16 @@
 package services
 
 import javax.inject.Inject
-import model.{Note, AddNote, User}
+import model.{AddNote, Note, User}
 import persistance.note.NoteRepository
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class NoteService @Inject()(
                              noteRepository: NoteRepository
+                           )
+                           (
+                             implicit ec: ExecutionContext
                            ) {
 
   def addNoteToUser(note: AddNote, user: User): Future[Note] = {
@@ -16,5 +19,16 @@ class NoteService @Inject()(
 
   def getUserNotes(user: User): Future[Seq[Note]] = {
     noteRepository.findNotesByUserId(user.userId.get)
+  }
+
+  def getNotesByTitle(title: String, user: User): Future[Seq[Note]] = {
+    noteRepository.findNotesByTitle(title)
+      .map { notes =>
+        if (notes.nonEmpty) {
+          notes.filter(_.userId == user.userId.get)
+        } else {
+          notes
+        }
+      }
   }
 }
