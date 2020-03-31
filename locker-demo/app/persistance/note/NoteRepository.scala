@@ -9,4 +9,6 @@ import scala.concurrent.Future
 trait NoteRepository {
 
   def create(note: AddNote): Future[Note]
+
+  def findNotesByUserId(userId: Long): Future[Seq[Note]]
 }
