@@ -54,4 +54,12 @@ class SqlNoteRepository @Inject()(
     db.run(query.result)
   }
 
+  override def findNotesByTitle(title: String): Future[Seq[Note]] = {
+    val query = for {
+      note <- notes if note.title like s"%$title%"
+    } yield note
+
+    db.run(query.result)
+  }
+
 }
