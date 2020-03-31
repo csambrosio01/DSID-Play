@@ -63,4 +63,32 @@ class NoteController @Inject() (
       }
   }
 
+  def getNotesByTitle(): Action[AnyContent] = userAction.async { implicit request: UserRequest[AnyContent] =>
+    request
+      .userInfo
+      .fold(
+        Future.successful(
+          Unauthorized("You must be logged in to create a note")
+        )
+      ) { user =>
+        request
+          .body
+          .asJson
+          .map(_.as[String])
+          .map { title =>
+            val futureNotes = noteService.getNotesByTitle(title, user)
+
+            futureNotes.map { notes =>
+              if (notes.isEmpty) {
+                logger.warn(s"There isn't a note with title $title related to user ${user.userId.get}")
+                NotFound("You don't have any note related to your user")
+              } else {
+                Ok(Json.toJson(notes))
+              }
+            }
+          }
+          .getOrElse(Future.successful(BadRequest("Bad json")))
+      }
+  }
+
 }
