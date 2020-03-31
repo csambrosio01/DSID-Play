@@ -1,6 +1,8 @@
 package controllers
 
 import javax.inject.Inject
+import model.User
+import model.User._
 import play.api.mvc._
 import services.UserService
 import services.session.SessionService
@@ -19,24 +21,26 @@ class UserController @Inject() (
                                )
   extends AbstractController(cc) {
 
-  def login = userAction.async { implicit request: UserRequest[AnyContent] =>
-    val successFunc = { userInfo: UserInfo =>
-      sessionGenerator.createSession(userInfo).map {
-        case (sessionId, encryptedCookie) =>
-          val session = request.session + (SESSION_ID -> sessionId)
-          Redirect(routes.HomeController.index())
-            .withSession(session)
-            .withCookies(encryptedCookie)
-      }
-    }
+  def createUser(): Action[AnyContent] = Action.async { implicit request =>
+    request
+      .body
+      .asJson
+      .map(_.as[User](userFormat))
+      .map { user: User =>
+        val validation = for {
+          _ <- userService.createUser(user)
+          (sessionId, encryptedCookie) <- sessionGenerator.createSession(user)
+        } yield (sessionId, encryptedCookie)
 
-    val errorFunc = { badForm: Form[UserInfo] =>
-      Future.successful {
-        BadRequest(views.html.index(badForm)).flashing(FLASH_ERROR -> "Could not login!")
+        validation.map {
+          case (sessionId, encryptedCookie) =>
+            val session = request.session + (SESSION_ID -> sessionId)
+            Ok("Logged in")
+              .withSession(session)
+              .withCookies(encryptedCookie)
+        }
       }
-    }
-
-    form.bindFromRequest().fold(errorFunc, successFunc)
+      .getOrElse(Future.successful(BadRequest("Bad json")))
   }
 
 
