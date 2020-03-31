@@ -5,9 +5,9 @@
 
 GET     /                                controllers.HomeController.index
 
-POST     /login                          controllers.LoginController.login
+POST     /login                          controllers.UserController.login
 
-POST     /logout                         controllers.LogoutController.logout
+POST     /logout                         controllers.UserController.logout
 
 
 # Map static resources from the /public folder to the /assets URL path
