@@ -13,4 +13,8 @@ class NoteService @Inject()(
   def addNoteToUser(note: AddNote, user: User): Future[Note] = {
     noteRepository.create(note.copy(userId = user.userId))
   }
+
+  def getUserNotes(user: User): Future[Seq[Note]] = {
+    noteRepository.findNotesByUserId(user.userId.get)
+  }
 }
