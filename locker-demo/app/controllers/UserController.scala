@@ -2,9 +2,9 @@ package controllers
 
 import exception.WrongCredentialsException
 import javax.inject.Inject
-import model.{Login, User}
-import model.User._
 import model.Login._
+import model.User._
+import model.{Login, User}
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -14,7 +14,6 @@ import services.session.SessionService
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserController @Inject() (
-                                 userAction: UserInfoAction,
                                  sessionGenerator: SessionGenerator,
                                  cc: ControllerComponents,
                                  sessionService: SessionService,
