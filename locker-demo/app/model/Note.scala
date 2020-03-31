@@ -13,6 +13,12 @@ case class Note(
                  updatedAt: Timestamp
                )
 
+case class AddNote(
+                        userId: Option[Long],
+                        content: String,
+                        description: String
+                      )
+
 object Note {
   def timestampToLong(t: Timestamp): Long = t.getTime
 
@@ -25,4 +31,5 @@ object Note {
   }
 
   implicit val noteFormat: OFormat[Note] = Json.format[Note]
+  implicit val requestNoteRead: Reads[AddNote] = Json.reads[AddNote]
 }
