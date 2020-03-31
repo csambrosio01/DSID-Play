@@ -14,7 +14,6 @@ import services.session.SessionService
 import scala.concurrent.{ExecutionContext, Future}
 
 class UserController @Inject() (
-                                 userAction: UserInfoAction,
                                  sessionGenerator: SessionGenerator,
                                  cc: ControllerComponents,
                                  sessionService: SessionService,
