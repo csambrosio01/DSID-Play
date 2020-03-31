@@ -14,3 +14,4 @@ POST        /note                                       controllers.NoteControll
 GET         /notes                                      controllers.NoteController.getUserNotes
 GET         /notes/title                                controllers.NoteController.getNotesByTitle
 GET         /notes/:noteId                              controllers.NoteController.getNoteById(noteId: Long)
+PUT         /notes/update/:noteId                       controllers.NoteController.updateNote(noteId: Long)

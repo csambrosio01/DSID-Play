@@ -1,5 +1,6 @@
 package controllers
 
+import exception.{NotFoundException, UnauthorizedException}
 import javax.inject.Inject
 import model.AddNote
 import model.Note._
@@ -109,6 +110,37 @@ class NoteController @Inject() (
             NotFound("You don't have a note with this id related to your user")
           }
         }
+      }
+  }
+
+  def updateNote(noteId: Long): Action[AnyContent] = userAction.async { implicit request: UserRequest[AnyContent] =>
+    request
+      .userInfo
+      .fold(
+        Future.successful(
+          Unauthorized("You must be logged in to create a note")
+        )
+      ) { user =>
+        request
+          .body
+          .asJson
+          .map(_.as[AddNote])
+          .map { note =>
+            val futureUpdatedNote = noteService.updateNote(note, noteId, user)
+
+            futureUpdatedNote.map { updatedNote =>
+              Ok(Json.toJson(updatedNote))
+            }
+              .recover {
+                case e: NotFoundException =>
+                  logger.warn(e.message)
+                  NotFound("Could not found a note with given id")
+                case e: UnauthorizedException =>
+                  logger.warn(e.message)
+                  Unauthorized("You can't update a note that isn't yours")
+              }
+          }
+          .getOrElse(Future.successful(BadRequest("Bad json")))
       }
   }
 
