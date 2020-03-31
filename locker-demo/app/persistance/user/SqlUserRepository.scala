@@ -43,4 +43,10 @@ class SqlUserRepository @Inject()(
       user.copy(userId = id)
     }
   }
+
+  override def findUserByUsername(username: String): Future[Option[User]] = {
+    val query = users.filter(_.username === username)
+
+    db.run(query.result.headOption)
+  }
 }
